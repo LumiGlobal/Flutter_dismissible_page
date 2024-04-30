@@ -19,6 +19,8 @@ class SingleAxisDismissiblePage extends StatefulWidget {
     required this.onDragStart,
     required this.onDragEnd,
     required this.onDragUpdate,
+    required this.onRawVerticalDragStart,
+    required this.onRawVerticalDragEnd,
     required this.reverseDuration,
     required this.hitTestBehavior,
     required this.contentPadding,
@@ -30,6 +32,8 @@ class SingleAxisDismissiblePage extends StatefulWidget {
   final VoidCallback? onDragEnd;
   final VoidCallback onDismissed;
   final ValueChanged<DismissiblePageDragUpdateDetails>? onDragUpdate;
+  final ValueChanged<DragEndDetails>? onRawVerticalDragEnd;
+  final ValueChanged<DragStartDetails>? onRawVerticalDragStart;
   final bool isFullScreen;
   final double minScale;
   final double minRadius;
@@ -256,9 +260,21 @@ class _SingleAxisDismissiblePageState extends State<SingleAxisDismissiblePage>
       onHorizontalDragStart: _directionIsXAxis ? _handleDragStart : null,
       onHorizontalDragUpdate: _directionIsXAxis ? _handleDragUpdate : null,
       onHorizontalDragEnd: _directionIsXAxis ? _handleDragEnd : null,
-      onVerticalDragStart: _directionIsXAxis ? null : _handleDragStart,
+      onVerticalDragStart: (details) {
+        if (!_directionIsXAxis) {
+          _handleDragStart.call(details);
+        }
+
+        widget.onRawVerticalDragStart?.call(details);
+      },
       onVerticalDragUpdate: _directionIsXAxis ? null : _handleDragUpdate,
-      onVerticalDragEnd: _directionIsXAxis ? null : _handleDragEnd,
+      onVerticalDragEnd: (details) {
+        if (!_directionIsXAxis) {
+          _handleDragEnd.call(details);
+        }
+
+        widget.onRawVerticalDragEnd?.call(details);
+      },
       behavior: widget.hitTestBehavior,
       dragStartBehavior: widget.dragStartBehavior,
       child: _DismissiblePageListener(
